@@ -75,7 +75,7 @@ class Logger
     ];
 
     /**
-     * @var Monolog|null The monolog instance
+     * @var Monolog The monolog instance
      */
     protected ?Monolog $instance = null;
 

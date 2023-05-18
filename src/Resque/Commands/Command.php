@@ -11,7 +11,6 @@
 
 namespace Resque\Commands;
 
-use Exception;
 use Resque;
 use Resque\Helpers\Util;
 use Resque\Logger;
@@ -155,7 +154,7 @@ class Command extends \Symfony\Component\Console\Command\Command
 
             try {
                 require_once $includeFile;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new \RuntimeException('The include file "'.$include.'" threw an exception: "'.$e->getMessage().'" on line '.$e->getLine());
             }
         }
@@ -167,7 +166,7 @@ class Command extends \Symfony\Component\Console\Command\Command
                 $data = array_map(
                     function ($d) {
                         /** @var mixed $d */
-                        $d instanceof Exception and ($d = '"'.$d->getMessage().'"');
+                        $d instanceof \Exception and ($d = '"'.$d->getMessage().'"');
                         is_array($d) and ($d = '['.implode(',', $d).']');
 
                         return (string)$d;
@@ -208,7 +207,6 @@ class Command extends \Symfony\Component\Console\Command\Command
      * @param array $defaults
      *
      * @return bool
-     * @throws Exception
      */
     protected function parseConfig(array $config, array $defaults): bool
     {

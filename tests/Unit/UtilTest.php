@@ -25,8 +25,12 @@ use PHPUnit\Framework\TestCase;
 final class UtilTest extends TestCase
 {
     /**
-     * @param string    $expected   expected readable sizes
-     * @param int       $bytes      size in bytes
+     * @param string $expected   expected readable sizes
+     * @param int    $bytes      size in bytes
+     * @param string $force_unit a definitive unit
+     * @param string $format     the return string format
+     * @param bool   $si         whether to use SI prefixes or IEC
+     *
      * @dataProvider getBytes
      */
     public function testBytes($expected, $bytes): void

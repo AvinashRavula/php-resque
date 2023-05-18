@@ -11,7 +11,6 @@
 
 namespace Resque\Logger\Handler;
 
-use ReflectionException;
 use Resque\Logger;
 use Monolog\Handler\AbstractProcessingHandler;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -67,10 +66,9 @@ class ConsoleHandler extends AbstractProcessingHandler
     ];
 
     /**
-     * @param OutputInterface   $output The output interface
-     * @param int               $level  The minimum logging level at which this handler will be triggered
-     * @param bool              $bubble Whether the messages that are handled can bubble up the stack or not
-     * @throws ReflectionException
+     * @param OutputInterface $output The output interface
+     * @param int             $level  The minimum logging level at which this handler will be triggered
+     * @param bool            $bubble Whether the messages that are handled can bubble up the stack or not
      */
     public function __construct(OutputInterface $output, int $level = Logger::DEBUG, bool $bubble = true)
     {
@@ -80,6 +78,7 @@ class ConsoleHandler extends AbstractProcessingHandler
 
         foreach ($this->styleMap as $name => $styles) {
             $style = new \ReflectionClass('Symfony\Component\Console\Formatter\OutputFormatterStyle');
+            /** @var \Symfony\Component\Console\Formatter\OutputFormatterStyle */
             $styleClass = $style->newInstanceArgs($styles);
             $this->output->getFormatter()->setStyle($name, $styleClass);
 

@@ -11,12 +11,7 @@
 
 namespace Resque;
 
-use Exception;
-use ReflectionClass;
-use ReflectionException;
-use Resque\Exception\Cancel;
 use Resque\Helpers\Stats;
-use RuntimeException;
 
 /**
  * Resque job class
@@ -76,7 +71,7 @@ class Job
     /**
      * @var Worker Instance of the worker running this job
      */
-    protected Worker $worker;
+    protected $worker;
 
     /**
      * @var object Instance of the class performing work for this job
@@ -95,8 +90,8 @@ class Job
     /**
      * Get the Redis key
      *
-     * @param Job|int       $job    the job to get the key for
-     * @param string|null   $suffix to be appended to key
+     * @param Job|int $job    the job to get the key for
+     * @param string  $suffix to be appended to key
      *
      * @return string
      */
@@ -114,7 +109,7 @@ class Job
      * @param array|null        $data   Any optional arguments that should be passed when the job is executed
      * @param int               $run_at Unix timestamp of when to run the job to delay execution
      *
-     * @return Job|false
+     * @return Job|bool
      */
     public static function create(string $queue, $class, ?array $data = null, int $run_at = 0)
     {
@@ -139,10 +134,10 @@ class Job
     /**
      * Create a new job id
      *
-     * @param string            $queue  The name of the queue to place the job in
-     * @param string|callable   $class  The name of the class that contains the code to execute the job
-     * @param array|null        $data   Any optional arguments that should be passed when the job is executed
-     * @param int               $run_at Unix timestamp of when to run the job to delay execution
+     * @param string          $queue  The name of the queue to place the job in
+     * @param string|callable $class  The name of the class that contains the code to execute the job
+     * @param array           $data   Any optional arguments that should be passed when the job is executed
+     * @param int             $run_at Unix timestamp of when to run the job to delay execution
      *
      * @return string
      */
@@ -340,11 +335,11 @@ class Job
             }
 
             $this->complete();
-        } catch (Cancel $e) {
+        } catch (Exception\Cancel $e) {
             // setUp said don't perform this job
             $this->cancel();
             $retval = false;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->fail($e);
             $retval = false;
         }
@@ -366,7 +361,6 @@ class Job
      * Get the instantiated object for this job that will be performing work
      *
      * @return object Instance of the object that this job belongs to
-     * @throws ReflectionException
      */
     public function getInstance(): object
     {
@@ -375,16 +369,16 @@ class Job
         }
 
         if (!class_exists($this->class)) {
-            throw new RuntimeException('Could not find job class "'.$this->class.'"');
+            throw new \RuntimeException('Could not find job class "'.$this->class.'"');
         }
         if (!method_exists($this->class, $this->method)) {
-            throw new RuntimeException('Job class "'.$this->class.'" does not contain a public "'.$this->method.'" method');
+            throw new \RuntimeException('Job class "'.$this->class.'" does not contain a public "'.$this->method.'" method');
         }
 
-        $class = new ReflectionClass($this->class);
+        $class = new \ReflectionClass($this->class);
 
         if ($class->isAbstract()) {
-            throw new RuntimeException('Job class "'.$this->class.'" cannot be an abstract class');
+            throw new \RuntimeException('Job class "'.$this->class.'" cannot be an abstract class');
         }
 
         $instance = $class->newInstance();
@@ -453,9 +447,9 @@ class Job
     /**
      * Mark the current job as having failed
      *
-     * @param Exception $e
+     * @param \Exception $e
      */
-    public function fail(Exception $e): void
+    public function fail(\Exception $e): void
     {
         $this->stopped();
 
@@ -515,10 +509,10 @@ class Job
     /**
      * Update the status indicator for the current job with a new status
      *
-     * @param int               $status The status of the job
-     * @param Exception|null    $e      If failed status it sends through exception
+     * @param int        $status The status of the job
+     * @param \Exception $e      If failed status it sends through exception
      */
-    public function setStatus(int $status, ?Exception $e = null): void
+    public function setStatus(int $status, ?\Exception $e = null): void
     {
         if (!($packet = $this->getPacket())) {
             $packet = [
@@ -599,14 +593,13 @@ class Job
      * Returns formatted execution time string
      *
      * @return string
-     * @throws Exception
      */
     public function execTime(): string
     {
         $packet = $this->getPacket();
 
         if ($packet['finished'] === 0) {
-            throw new Exception('The job has not yet ran');
+            throw new \Exception('The job has not yet ran');
         }
 
         return $packet['finished'] - $packet['started'];
@@ -616,7 +609,6 @@ class Job
      * Returns formatted execution time string
      *
      * @return string
-     * @throws Exception
      */
     public function execTimeStr(): string
     {
@@ -642,11 +634,11 @@ class Job
     /**
      * Set the job id.
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public function setId(): void
     {
-        throw new RuntimeException('It is not possible to set job id, you must create a new job');
+        throw new \RuntimeException('It is not possible to set job id, you must create a new job');
     }
 
     /**
@@ -662,11 +654,11 @@ class Job
     /**
      * Set the job queue.
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public function setQueue(): void
     {
-        throw new RuntimeException('It is not possible to set job queue, you must create a new job');
+        throw new \RuntimeException('It is not possible to set job queue, you must create a new job');
     }
 
     /**
@@ -682,11 +674,11 @@ class Job
     /**
      * Set the job class.
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public function setClass(): void
     {
-        throw new RuntimeException('It is not possible to set job class, you must create a new job');
+        throw new \RuntimeException('It is not possible to set job class, you must create a new job');
     }
 
     /**
@@ -702,11 +694,11 @@ class Job
     /**
      * Set the job data.
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public function setData(): void
     {
-        throw new RuntimeException('It is not possible to set job data, you must create a new job');
+        throw new \RuntimeException('It is not possible to set job data, you must create a new job');
     }
 
     /**

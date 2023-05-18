@@ -11,9 +11,6 @@
 
 namespace Resque;
 
-use DateTime;
-use InvalidArgumentException;
-
 /**
  * Resque queue class
  *
@@ -51,7 +48,7 @@ class Queue
     /**
      * Create a new queue instance
      *
-     * @param string|null $default Name of default queue to add job to
+     * @param string $default Name of default queue to add job to
      */
     public function __construct(?string $default = null)
     {
@@ -65,9 +62,9 @@ class Queue
      *
      * @param string $id Job id
      *
-     * @return Job|null job instance
+     * @return Job job instance
      */
-    public function job(string $id): ?Job
+    public function job(string $id): Job
     {
         return Job::load($id);
     }
@@ -75,13 +72,13 @@ class Queue
     /**
      * Push a new job onto the queue
      *
-     * @param string|callable   $job    The job class
-     * @param array|null        $data   The job data
-     * @param string|null       $queue  The queue to add the job to
+     * @param string|callable $job   The job class
+     * @param array           $data  The job data
+     * @param string          $queue The queue to add the job to
      *
-     * @return Job|false job instance or false
+     * @return Job job instance
      */
-    public function push($job, ?array $data = null, ?string $queue = null)
+    public function push($job, ?array $data = null, ?string $queue = null): Job
     {
         if (false !== ($delay = \Resque::getConfig('default.jobs.delay', false))) {
             return $this->later($delay, $job, $data, $queue);
@@ -95,22 +92,22 @@ class Queue
      * are deleted upon retrieval. If a given job (payload) already exists,
      * it is updated with the new delay.
      *
-     * @param DateTime|int      $delay This can be number of seconds or unix timestamp
-     * @param string|callable   $job   The job class
-     * @param array             $data  The job data
-     * @param string|null       $queue The queue to add the job to
+     * @param \DateTime|int   $delay This can be number of seconds or unix timestamp
+     * @param string|callable $job   The job class
+     * @param array           $data  The job data
+     * @param string          $queue The queue to add the job to
      *
-     * @return Job|false job instance or false
+     * @return Job job instance
      */
     public function later($delay, $job, array $data = [], ?string $queue = null)
     {
         // If it's a datetime object conver to unix time
-        if ($delay instanceof DateTime) {
+        if ($delay instanceof \DateTime) {
             $delay = $delay->getTimestamp();
         }
 
         if (!is_numeric($delay)) {
-            throw new InvalidArgumentException('The delay "'.$delay.'" must be an integer or DateTime object.');
+            throw new \InvalidArgumentException('The delay "'.$delay.'" must be an integer or DateTime object.');
         }
 
         // If the delay is smaller than 3 years then assume that an interval
